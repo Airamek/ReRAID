@@ -18,3 +18,5 @@ do
 		rm -r $RERAID_DIR/install
 	fi
 done
+
+mkdir $RERAID_DIR/mnt/slack
