@@ -1,1 +1,0 @@
- mkinitrd -k 4.4.14 -u -f -m input:usbcore:xhci-hcd:usbhid:hid-generic:fat:vfat -o reraid-initrd.img
