@@ -57,7 +57,7 @@ cat <<EOF > "$RERAID_DIR"/init
 # Boot the real thing.
 # exec switch_root /mnt/root /sbin/init
 
-echo "Welcome to re:RAID"
+echo "Welcome to Re:RAID"
 /sbin/init
 EOF
 
