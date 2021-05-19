@@ -16,6 +16,13 @@ beginswith()
 #Needed for relative paths
 START_PWD=$(pwd)
 
+#make tmp dir
+if [ -d $START_PWD/tmp ]; then
+    rm -rf $START_PWD/tmp/*
+else
+    mkdir -p $START_PWD/tmp
+fi
+
 RERAID_ESSENTIALS_DIR=""
 STAGEONE_OUTPUT_DIR=""
 
@@ -57,12 +64,34 @@ fi
 echo "The essentials dir is $RERAID_ESSENTIALS_DIR"
 echo "The output dir is $STAGEONE_OUTPUT_DIR"
 
-#install the slackware packages from essentialsv2
-#need to make separate packages in dir to make more understandable file structure
+#install the slackware packages from system_base (this creates the basic file structure of linux)
+for f in $RERAID_ESSENTIALS_DIR/system_base/*
+do
+	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
+	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
+		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
+		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
+		rm -r $STAGEONE_OUTPUT_DIR/install
+	fi
+done
+#do the same for the kernel, and prepare it for the usb drive
+for f in $RERAID_ESSENTIALS_DIR/kernel/*
+do
+	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
+	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
+		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
+		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
+		rm -r $STAGEONE_OUTPUT_DIR/install
+	fi
+    if [ -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz ]; then
+        cp $(readlink -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz) $START_PWD/tmp
+    fi
+done
+#and the rest of the essential packages
 for f in $RERAID_ESSENTIALS_DIR/essentialsv2/*
 do
 	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
-	if test -f $STAGEONE_OUTPUT_DIR/install/doinst.sh; then
+	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
 		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
 		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
 		rm -r $STAGEONE_OUTPUT_DIR/install
