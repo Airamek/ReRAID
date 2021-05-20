@@ -4,6 +4,7 @@ INITRD_SOURCE=""
 OUTPUT_IMAGE=""
 START_PWD=$(pwd)
 
+#Function from stackoverflow
 beginswith() 
 {
     case $2 in
@@ -57,12 +58,14 @@ echo "The output img is $OUTPUT_IMAGE"
 
 # (cd $INITRD_SOURCE ; find . | cpio -o -H newc | gzip -9c > $START_PWD/$OUTPUT_IMAGE)
 
+#This removes the output image if it already exists
 if [ -f $OUTPUT_IMAGE ]; then
     rm "$OUTPUT_IMAGE"
-    if [ "$?" -ne 0 ]
+    if [ "$?" -ne 0 ] # It checks if the remove succedded, and if not, it passes on it's exit code and exits
     then
         exit $?
     fi
 fi 
 
+#This creates the initrd, which is actually an initramfs
 (cd $INITRD_SOURCE ; find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $OUTPUT_IMAGE)
