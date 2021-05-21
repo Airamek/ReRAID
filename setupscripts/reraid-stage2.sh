@@ -4,18 +4,7 @@ INITRD_SOURCE=""
 OUTPUT_IMAGE=""
 START_PWD=$(pwd)
 
-#Function from stackoverflow
-beginswith() 
-{
-    case $2 in
-        "$1"*) 
-            true
-        ;;
-        *) 
-            false
-        ;; 
-    esac 
-}
+. $START_PWD/setupscripts/common.sh
 
 usage()
 {
