@@ -1,20 +1,9 @@
 #!/bin/sh
 
-#From stackoverflow
-beginswith() 
-{
-    case $2 in
-        "$1"*) 
-            true
-        ;;
-        *) 
-            false
-        ;; 
-    esac 
-}
-
 #Needed for relative paths
 START_PWD=$(pwd)
+
+. $START_PWD/setupscripts/common.sh
 
 #make tmp dir
 if [ -d $START_PWD/tmp ]; then
@@ -64,38 +53,39 @@ fi
 echo "The essentials dir is $RERAID_ESSENTIALS_DIR"
 echo "The output dir is $STAGEONE_OUTPUT_DIR"
 
-#install the slackware packages from system_base (this creates the basic file structure of linux)
-for f in $RERAID_ESSENTIALS_DIR/system_base/*
+#install essential packages
+for f in $RERAID_ESSENTIALS_DIR/essentialsv2/*
 do
-	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
+	sudo tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
 	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
-		rm -r $STAGEONE_OUTPUT_DIR/install
+		sudo chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
+		(cd $STAGEONE_OUTPUT_DIR ; sudo install/doinst.sh)
+		sudo rm -r $STAGEONE_OUTPUT_DIR/install
 	fi
 done
-#do the same for the kernel, and prepare it for the usb drive
+#install init system
+# for f in $RERAID_ESSENTIALS_DIR/init/*
+# do
+# 	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
+# 	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
+# 		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
+# 		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
+# 		rm -r $STAGEONE_OUTPUT_DIR/install
+# 	fi
+# done
+
+#do the same for the kernel, and prepare it for the boot device
 for f in $RERAID_ESSENTIALS_DIR/kernel/*
 do
-	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
+	sudo tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
 	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
-		rm -r $STAGEONE_OUTPUT_DIR/install
+		sudo chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
+		(cd $STAGEONE_OUTPUT_DIR ; sudo install/doinst.sh)
+		sudo rm -r $STAGEONE_OUTPUT_DIR/install
 	fi
     if [ -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz ]; then
         cp $(readlink -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz) $START_PWD/tmp
     fi
-done
-#and the rest of the essential packages
-for f in $RERAID_ESSENTIALS_DIR/essentialsv2/*
-do
-	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
-	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
-		rm -r $STAGEONE_OUTPUT_DIR/install
-	fi
 done
 
 
