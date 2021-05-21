@@ -57,4 +57,4 @@ if [ -f $OUTPUT_IMAGE ]; then
 fi 
 
 #This creates the initrd, which is actually an initramfs
-(cd $INITRD_SOURCE ; find . -print0 | cpio --null --create --verbose --format=newc | gzip --best > $OUTPUT_IMAGE)
+(cd $INITRD_SOURCE ; find . -print0 | sudo cpio --null --create --verbose --format=newc | gzip --best > $OUTPUT_IMAGE)

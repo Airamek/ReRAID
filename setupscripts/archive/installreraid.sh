@@ -3,17 +3,17 @@
 RERAID_DIR=""
 RERAID_ESSENTIALS_DIR=""
 
-for arg in "$@"
-do
-	case $arg in
-		-e | --essentials)
-			RERAID_ESSENTIALS_DIR=$ARG
-			echo "The essentials dir is $RERAID_ESSENTIALS_DIR"
-		;;
-	esac
-done	
+# for arg in "$@"
+# do
+# 	case $arg in
+# 		-e | --essentials)
+# 			RERAID_ESSENTIALS_DIR=$ARG
+# 			echo "The essentials dir is $RERAID_ESSENTIALS_DIR"
+# 		;;
+# 	esac
+# done	
 
-exit 0
+# exit 0
 
 if [ -z $1 ]; then
 	RERAID_DIR="$PWD/reraid"

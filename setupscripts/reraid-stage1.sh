@@ -89,7 +89,7 @@ do
 done
 
 
-cat <<EOF > "$STAGEONE_OUTPUT_DIR"/init
+sudo tee "$STAGEONE_OUTPUT_DIR"/init <<EOF 
 #!/bin/sh
 
 echo "Welcome to Re:RAID"
