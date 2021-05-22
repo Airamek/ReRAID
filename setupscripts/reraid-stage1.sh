@@ -56,33 +56,18 @@ echo "The output dir is $STAGEONE_OUTPUT_DIR"
 #install essential packages
 for f in $RERAID_ESSENTIALS_DIR/essentialsv2/*
 do
-	sudo tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
-	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-		sudo chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-		(cd $STAGEONE_OUTPUT_DIR ; sudo install/doinst.sh)
-		sudo rm -r $STAGEONE_OUTPUT_DIR/install
-	fi
+	installpackage $f
 done
 #install init system
-# for f in $RERAID_ESSENTIALS_DIR/init/*
-# do
-# 	tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
-# 	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-# 		chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-# 		(cd $STAGEONE_OUTPUT_DIR ; install/doinst.sh)
-# 		rm -r $STAGEONE_OUTPUT_DIR/install
-# 	fi
-# done
+for f in $RERAID_ESSENTIALS_DIR/init/*
+do
+    installpackage $f
+done
 
 #do the same for the kernel, and prepare it for the boot device
 for f in $RERAID_ESSENTIALS_DIR/kernel/*
 do
-	sudo tar -xpvJf "$f" -C $STAGEONE_OUTPUT_DIR/
-	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-		sudo chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-		(cd $STAGEONE_OUTPUT_DIR ; sudo install/doinst.sh)
-		sudo rm -r $STAGEONE_OUTPUT_DIR/install
-	fi
+    installpackage $f
     if [ -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz ]; then
         cp $(readlink -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz) $START_PWD/tmp
     fi
