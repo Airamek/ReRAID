@@ -1,101 +1,60 @@
 #!/bin/sh
 
-#Function from stackoverflow
-
-
-
+INITRD_SOURCE="" 
+OUTPUT_IMAGE=""
 START_PWD=$(pwd)
-
-RERAID_ESSENTIALS_DIR=""
-RERAID_IMAGE=""
-RERAID_KERNEL=""
-SYSLINUX_DIR=""
-INSTALL_DEVICE=""
-FILESYSTEM="$START_PWD/tmp/fs"
 
 . $START_PWD/setupscripts/common.sh
 
-while [ ! -z $1 ]; do 
-    case $1 in 
-        -i | --image)
-            # The Re:RAID image for install
-            if beginswith / $2; then
-                RERAID_IMAGE=$2
-            else
-                RERAID_IMAGE=$START_PWD/$2
-            fi
-            shift
-            shift
+usage()
+{
+    echo "Usage: source-tree output-name"
+}
+
+#Handle arguments
+if [ ! -z $1 ]; then
+    case $1 in
+        -h)
+            usage
+            exit 0
         ;;
-        -k | --kernel)
-            # The kernel to install
-            if beginswith / $2; then
-                RERAID_KERNEL=$2
-            else
-                RERAID_KERNEL=$START_PWD/$2
-            fi
-            shift
-            shift
+        *)
+            INITRD_SOURCE=$START_PWD/$1
         ;;
-        -s | -syslinux)
-            # A folder with the syslinux essentials
-            if beginswith / $2; then
-                SYSLINUX_DIR=$2
-            else
-                SYSLINUX_DIR=$START_PWD/$2
-            fi
-            shift
-            shift
+        /*)
+            INITRD_SOURCE=$1
         ;;
-		-e | --essentials)
-            # The Re:RAID essentials dir (the install files)
-            if beginswith / "$2"; then
-			    RERAID_ESSENTIALS_DIR=$2
-            else
-                RERAID_ESSENTIALS_DIR=$START_PWD/$2
-            fi
-            shift
-            shift
-		;;
-    esac
-done
-
-# Default options
-if [ "$RERAID_IMAGE" = "" ]; then
-    RERAID_IMAGE=$START_PWD/reraid-test.cpio.gz
+	esac
+fi
+if [ ! -z $2 ]; then
+    if beginswith / $2; then
+        OUTPUT_IMAGE="$2".cpio.gz
+    else
+        OUTPUT_IMAGE=$START_PWD/"$2".cpio.gz
+    fi
 fi
 
-if [ "$RERAID_ESSENTIALS_DIR" = "" ]; then
-    RERAID_ESSENTIALS_DIR=$START_PWD/reraid_essentials
+#Default cases if not specified
+if [ "$INITRD_SOURCE" = "" ]; then
+    INITRD_SOURCE=$START_PWD/reraid
+fi
+if [ "$OUTPUT_IMAGE" = "" ]; then
+    OUTPUT_IMAGE="$START_PWD"/reraid-test.cpio.gz
 fi
 
-if [ "$RERAID_KERNEL" = "" ]; then
-    RERAID_KERNEL=$START_PWD/tmp/$(ls $START_PWD/tmp | grep -i vmlinuz)
-fi
+echo "The initrd src dir is $INITRD_SOURCE"
+echo "The output img is $OUTPUT_IMAGE"
 
-if [ "$SYSLINUX_DIR" = "" ]; then 
-    SYSLINUX_DIR=$RERAID_ESSENTIALS_DIR/syslinux
-fi
+# (cd $INITRD_SOURCE ; find . | cpio -o -H newc | gzip -9c > $START_PWD/$OUTPUT_IMAGE)
 
+#This removes the output image if it already exists
+if [ -f $OUTPUT_IMAGE ]; then
+    rm "$OUTPUT_IMAGE"
+    if [ "$?" -ne 0 ] # It checks if the remove succedded, and if not, it passes on it's exit code and exits
+    then
+        exit $?
+    fi
+fi 
 
-
-echo "The Re:RAID image is $RERAID_IMAGE"
-echo "The kernel is $RERAID_KERNEL"
-echo "The syslinux dir is $SYSLINUX_DIR"
-
-
-# Start creation of the device filesystem
-if [ ! -d $FILESYSTEM ]; then
-    mkdir -p $FILESYSTEM
-    mkdir $FILESYSTEM/boot
-fi
-
-# Store Re:RAID version
-touch $FILESYSTEM/reraid-version.txt
-echo $RERAID_VERSION > $FILESYSTEM/reraid-version.txt
-
-# The kernel
-cp $RERAID_KERNEL $FILESYSTEM/boot/vmlinuz
-
-# The initrd(initramfs image)
-cp $RERAID_IMAGE $FILESYSTEM/boot
+#This creates the initrd, which is actually an initramfs
+(cd $INITRD_SOURCE ; find . -print0 | sudo cpio --null --create --verbose --format=newc | gzip --best > $OUTPUT_IMAGE)
