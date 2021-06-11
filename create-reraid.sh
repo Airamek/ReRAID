@@ -16,11 +16,22 @@ while [ ! -z $1 ]; do
                 ;;
                 1 | *)
                     sudo rm -rf reraid/
-                    sudo rm -rf reraid-test.cpio.gz
+                    sudo rm -f reraid-test.cpio.gz
                     sudo rm -rf tmp
+                    sudo rm -f reraid.iso
                     exit 0
                 ;;
             esac
+        ;;
+        3)
+            ./setupscripts/reraid-stage1.sh
+            ./setupscripts/reraid-stage2.sh
+            ./setupscripts/reraid-stage3.sh
+            exit 0
+        ;;
+        -cm | --create-media)
+        ./setupscripts/createmedia.sh -t $2 -d $3
+        exit 0
         ;;
     esac
 done

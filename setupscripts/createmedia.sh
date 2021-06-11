@@ -49,7 +49,7 @@ if [ "$DEVICE_TYPE" = "" ]; then
 fi
 
 if [ "$INSTALL_DEVICE" = "" ] && [ "$DEVICE_TYPE" = "flash" ]; then
-    echo "You need to specify a device to install to. (WARNING: The device will be ereased, and all content will be lost)"
+    echo "You need to specify a device to install to. (WARNING: The device will be ereased, and all content will be lost, unless Re:RAID is already installed)"
     exit 1
 fi
 
@@ -60,6 +60,11 @@ if [ "$DEVICE_TYPE" = "flash" ]; then #we use syslinux
     cp $RERAID_ESSENTIALS_DIR/syslinux/libutil.c32 $FILESYSTEM/boot/syslinux
     cp $RERAID_ESSENTIALS_DIR/syslinux/menu.c32 $FILESYSTEM/boot/syslinux
     cp $RERAID_ESSENTIALS_DIR/syslinux/syslinux.cfg $FILESYSTEM/boot/syslinux
+
+    # Check if device is mounted, then check for Re:RAID
+    INSTALL_DEVICE_MOUNT=$(lsblk -l -o MOUNTPOINT $INSTALL_DEVICE | tail -1)
+    INSTALLED_VERSION=$(cat $INSTALL_DEVICE_MOUNT/reraid-version.txt)
+    echo $INSTALLED_VERSION
 elif [ "$DEVICE_TYPE" = "optical" ]; then
     mkdir $FILESYSTEM/boot/isolinux
     cp $RERAID_ESSENTIALS_DIR/isolinux/libcom32.c32 $FILESYSTEM/boot/isolinux
