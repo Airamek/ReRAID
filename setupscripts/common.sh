@@ -1,4 +1,4 @@
-RERAID_VERSION="0.1"
+RERAID_VERSION="0.2"
 
 #From stackoverflow
 beginswith() 

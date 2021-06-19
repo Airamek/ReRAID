@@ -1,16 +1,6 @@
 #!/bin/sh
 
-#Function from stackoverflow
-
-
-
 START_PWD=$(pwd)
-
-RERAID_ESSENTIALS_DIR=""
-RERAID_IMAGE=""
-RERAID_KERNEL=""
-SYSLINUX_DIR=""
-INSTALL_DEVICE=""
 FILESYSTEM="$START_PWD/tmp/fs"
 
 . $START_PWD/setupscripts/common.sh
@@ -31,7 +21,7 @@ while [ ! -z $1 ]; do
             # A folder with the syslinux essentials
             if beginswith / $2; then
                 SYSLINUX_DIR=$2
-            else
+            else 
                 SYSLINUX_DIR=$START_PWD/$2
             fi
             shift
@@ -47,38 +37,43 @@ while [ ! -z $1 ]; do
             shift
             shift
 		;;
+        -t | --type)
+            DEVICE_TYPE=$2
+            shift
+            shift
+        ;;
     esac
 done
 
-if [ "$RERAID_ESSENTIALS_DIR" = "" ]; then
+if [ -z $DEVICE_TYPE ]; then
+    echo "Device type needs to be specified"
+    exit 1
+fi
+if [ -z "$RERAID_ESSENTIALS_DIR" ]; then
     RERAID_ESSENTIALS_DIR=$START_PWD/reraid_essentials
 fi
 
-if [ "$RERAID_KERNEL" = "" ]; then
+if [ -z "$RERAID_KERNEL" ]; then
     RERAID_KERNEL=$START_PWD/tmp/$(ls $START_PWD/tmp | grep -i vmlinuz)
 fi
 
-if [ "$SYSLINUX_DIR" = "" ]; then 
+if [ -z "$SYSLINUX_DIR" ]; then 
     SYSLINUX_DIR=$RERAID_ESSENTIALS_DIR/syslinux
+fi
+if [ -z "$RERAID_DIR" ]; then 
+    RERAID_DIR=$START_PWD/reraid
 fi
 
 
 
-echo "The Re:RAID image is $RERAID_IMAGE"
 echo "The kernel is $RERAID_KERNEL"
 echo "The syslinux dir is $SYSLINUX_DIR"
 
 
-# Start creation of the device filesystem
-if [ ! -d $FILESYSTEM ]; then
-    mkdir -p $FILESYSTEM
-    mkdir $FILESYSTEM/boot
-fi
 
 # Store Re:RAID version
 touch $FILESYSTEM/reraid-version.txt
 echo $RERAID_VERSION > $FILESYSTEM/reraid-version.txt
 
 # The kernel
-cp $RERAID_KERNEL $FILESYSTEM/boot/vmlinuz
-
+sudo cp $RERAID_KERNEL $FILESYSTEM/boot/vmlinuz

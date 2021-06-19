@@ -5,15 +5,13 @@ START_PWD=$(pwd)
 
 . $START_PWD/setupscripts/common.sh
 
-#make tmp dir
-if [ -d $START_PWD/tmp ]; then
-    rm -rf $START_PWD/tmp/*
-else
-    mkdir -p $START_PWD/tmp
+FILESYSTEM="$START_PWD/tmp/fs"
+
+if [ ! -d $FILESYSTEM ]; then
+    mkdir -p $FILESYSTEM
+    mkdir $FILESYSTEM/boot
 fi
 
-RERAID_ESSENTIALS_DIR=""
-STAGEONE_OUTPUT_DIR=""
 
 #Handle the arguments
 while [ ! -z $1 ]
@@ -38,10 +36,10 @@ do
 done
 
 #Default cases if not specified
-if [ "$RERAID_ESSENTIALS_DIR" = "" ]; then
+if [ -z "$RERAID_ESSENTIALS_DIR" ]; then
     RERAID_ESSENTIALS_DIR=$START_PWD/reraid_essentials
 fi
-if [ "$STAGEONE_OUTPUT_DIR" = "" ]; then
+if [ -z "$STAGEONE_OUTPUT_DIR" ]; then
     STAGEONE_OUTPUT_DIR=$START_PWD/reraid
 fi
 
