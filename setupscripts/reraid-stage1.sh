@@ -27,10 +27,10 @@ do
             shift
 		;;
         *)
-            STAGEONE_OUTPUT_DIR=$START_PWD/$1
+            RERAID_DIR=$START_PWD/$1
         ;;
         /*)
-            STAGEONE_OUTPUT_DIR=$1
+            RERAID_DIR=$1
         ;;
 	esac
 done
@@ -39,17 +39,17 @@ done
 if [ -z "$RERAID_ESSENTIALS_DIR" ]; then
     RERAID_ESSENTIALS_DIR=$START_PWD/reraid_essentials
 fi
-if [ -z "$STAGEONE_OUTPUT_DIR" ]; then
-    STAGEONE_OUTPUT_DIR=$START_PWD/reraid
+if [ -z "$RERAID_DIR" ]; then
+    RERAID_DIR=$START_PWD/reraid
 fi
 
 #Check if output dir exists, if not, then create it
-if [ ! -d $STAGEONE_OUTPUT_DIR ]; then
-    mkdir -p $STAGEONE_OUTPUT_DIR
+if [ ! -d $RERAID_DIR ]; then
+    mkdir -p $RERAID_DIR
 fi
 
 echo "The essentials dir is $RERAID_ESSENTIALS_DIR"
-echo "The output dir is $STAGEONE_OUTPUT_DIR"
+echo "The output dir is $RERAID_DIR"
 
 #install essential packages
 for f in $RERAID_ESSENTIALS_DIR/essentialsv2/*
@@ -66,17 +66,19 @@ done
 for f in $RERAID_ESSENTIALS_DIR/kernel/*
 do
     installpackage $f
-    if [ -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz ]; then
-        cp $(readlink -f $STAGEONE_OUTPUT_DIR/boot/vmlinuz) $START_PWD/tmp
+    if [ -f $RERAID_DIR/boot/vmlinuz ]; then
+        cp $(readlink -f $RERAID_DIR/boot/vmlinuz) $START_PWD/tmp
     fi
 done
 
+# /mnt
+sudo mkdir $RERAID_DIR/mnt/boot # The mount point of the bootdrive
 
-sudo tee "$STAGEONE_OUTPUT_DIR"/init <<EOF 
+sudo tee "$RERAID_DIR"/init <<EOF 
 #!/bin/sh
 
 echo "Welcome to Re:RAID"
 /sbin/init
 EOF
 
-# rm "$STAGEONE_OUTPUT_DIR"/etc/motd
+# rm "$RERAID_DIR"/etc/motd

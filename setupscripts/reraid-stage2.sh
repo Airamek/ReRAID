@@ -17,16 +17,6 @@ while [ ! -z $1 ]; do
             shift
             shift
         ;;
-        -s | -syslinux)
-            # A folder with the syslinux essentials
-            if beginswith / $2; then
-                SYSLINUX_DIR=$2
-            else 
-                SYSLINUX_DIR=$START_PWD/$2
-            fi
-            shift
-            shift
-        ;;
 		-e | --essentials)
             # The Re:RAID essentials dir (the install files)
             if beginswith / "$2"; then
@@ -57,9 +47,6 @@ if [ -z "$RERAID_KERNEL" ]; then
     RERAID_KERNEL=$START_PWD/tmp/$(ls $START_PWD/tmp | grep -i vmlinuz)
 fi
 
-if [ -z "$SYSLINUX_DIR" ]; then 
-    SYSLINUX_DIR=$RERAID_ESSENTIALS_DIR/syslinux
-fi
 if [ -z "$RERAID_DIR" ]; then 
     RERAID_DIR=$START_PWD/reraid
 fi
@@ -67,9 +54,13 @@ fi
 
 
 echo "The kernel is $RERAID_KERNEL"
-echo "The syslinux dir is $SYSLINUX_DIR"
 
-
+# /etc/fstab creation
+if [ $DEVICE_TYPE = "optical" ]; then
+    sudo tee -a $RERAID_DIR/etc/fstab <<EOF
+    /dev/sr0    /mnt/boot       iso9660 ro,user,auto    0 0
+EOF
+fi
 
 # Store Re:RAID version
 touch $FILESYSTEM/reraid-version.txt
