@@ -15,10 +15,10 @@ beginswith()
 
 installpackage()
 {
-    sudo tar -xpvJf "$1" -C $STAGEONE_OUTPUT_DIR/
-	if [ -f $STAGEONE_OUTPUT_DIR/install/doinst.sh ]; then
-		sudo chmod +x $STAGEONE_OUTPUT_DIR/install/doinst.sh
-		(cd $STAGEONE_OUTPUT_DIR ; sudo install/doinst.sh)
-		sudo rm -r $STAGEONE_OUTPUT_DIR/install
+    sudo tar -xpvJf "$1" -C $RERAID_DIR/
+	if [ -f $RERAID_DIR/install/doinst.sh ]; then
+		sudo chmod +x $RERAID_DIR/install/doinst.sh
+		(cd $RERAID_DIR ; sudo install/doinst.sh)
+		sudo rm -r $RERAID_DIR/install
 	fi
 }
