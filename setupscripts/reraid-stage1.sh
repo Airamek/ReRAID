@@ -74,11 +74,13 @@ done
 # /mnt
 sudo mkdir $RERAID_DIR/mnt/boot # The mount point of the bootdrive
 
-sudo tee "$RERAID_DIR"/init <<EOF 
-#!/bin/sh
-
-echo "Welcome to Re:RAID"
-/sbin/init
+# Write version info
+sudo tee $RERAID_DIR/etc/reraid-release <<EOF
+0.2-live
+EOF
+#temp test
+sudo tee $RERAID_DIR/init<<EOF
+/bin/sh
 EOF
 
 # rm "$RERAID_DIR"/etc/motd

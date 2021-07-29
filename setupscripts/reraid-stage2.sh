@@ -63,8 +63,8 @@ EOF
 fi
 
 # Store Re:RAID version
-touch $FILESYSTEM/reraid-version.txt
-echo $RERAID_VERSION > $FILESYSTEM/reraid-version.txt
+touch $FILESYSTEM/reraid-release.txt
+echo $RERAID_VERSION > $FILESYSTEM/reraid-release.txt
 
 # The kernel
 sudo cp $RERAID_KERNEL $FILESYSTEM/boot/vmlinuz
