@@ -70,17 +70,19 @@ do
         cp $(readlink -f $RERAID_DIR/boot/vmlinuz) $START_PWD/tmp
     fi
 done
-
-# /mnt
-sudo mkdir $RERAID_DIR/mnt/boot # The mount point of the bootdrive
+# Remove contents of /boot on live systems
+if [ $RERAID_LIVE ]; then
+    sudo rm -rf $RERAID_DIR/boot/*
+fi
 
 # Write version info
 sudo tee $RERAID_DIR/etc/reraid-release <<EOF
-0.2-live
+$RERAID_VERSION
 EOF
-#temp test
+
+# if /init does not exist, the system refuses to boot, even though it's unused
 sudo tee $RERAID_DIR/init<<EOF
 /bin/sh
 EOF
 
-# rm "$RERAID_DIR"/etc/motd
+

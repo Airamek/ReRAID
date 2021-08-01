@@ -58,7 +58,7 @@ echo "The kernel is $RERAID_KERNEL"
 # /etc/fstab creation
 if [ $DEVICE_TYPE = "optical" ]; then
     sudo tee -a $RERAID_DIR/etc/fstab <<EOF
-    /dev/sr0    /mnt/boot       iso9660 ro,user,auto    0 0
+    /dev/sr0    /boot       iso9660 ro,user,auto    0 0
 EOF
 fi
 
@@ -68,3 +68,6 @@ echo $RERAID_VERSION > $FILESYSTEM/reraid-release.txt
 
 # The kernel
 sudo cp $RERAID_KERNEL $FILESYSTEM/boot/vmlinuz
+
+# Copy config dir
+cp -r $RERAID_ESSENTIALS_DIR/config $FILESYSTEM/
