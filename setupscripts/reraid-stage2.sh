@@ -51,16 +51,23 @@ if [ -z "$RERAID_DIR" ]; then
     RERAID_DIR=$START_PWD/reraid
 fi
 
+if [ -z $ARCH ]; then
+    ARCH="x86"
+fi
 
 
 echo "The kernel is $RERAID_KERNEL"
 
 # /etc/fstab creation
-if [ $DEVICE_TYPE = "optical" ]; then
-    sudo tee -a $RERAID_DIR/etc/fstab <<EOF
-    /dev/sr0    /boot       iso9660 ro,user,auto    0 0
+case $DEVICE_TYPE in
+    ;;
+    flash)
+    sudo tee $RERAID_DIR/etc/fstab <<EOF
+/dev/disk/by-label/RERAID    /boot       vfat defaults    0 0
 EOF
-fi
+    ;;
+esac
+
 
 # Store Re:RAID version
 touch $FILESYSTEM/reraid-release.txt

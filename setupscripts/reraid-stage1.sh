@@ -42,6 +42,9 @@ fi
 if [ -z "$RERAID_DIR" ]; then
     RERAID_DIR=$START_PWD/reraid
 fi
+if [ -z $ARCH ]; then
+    ARCH="x86"
+fi
 
 #Check if output dir exists, if not, then create it
 if [ ! -d $RERAID_DIR ]; then
@@ -52,18 +55,22 @@ echo "The essentials dir is $RERAID_ESSENTIALS_DIR"
 echo "The output dir is $RERAID_DIR"
 
 #install essential packages
-for f in $RERAID_ESSENTIALS_DIR/essentialsv2/*
+for f in $RERAID_ESSENTIALS_DIR/essentialsv2-$ARCH/*
+do
+	installpackage $f
+done
+for f in $RERAID_ESSENTIALS_DIR/essentialsv2-noarch/*
 do
 	installpackage $f
 done
 #install init system
-for f in $RERAID_ESSENTIALS_DIR/init/*
+for f in $RERAID_ESSENTIALS_DIR/init-$ARCH/*
 do
     installpackage $f
 done
 
 #do the same for the kernel, and prepare it for the boot device
-for f in $RERAID_ESSENTIALS_DIR/kernel/*
+for f in $RERAID_ESSENTIALS_DIR/kernel-$ARCH/*
 do
     installpackage $f
     if [ -f $RERAID_DIR/boot/vmlinuz ]; then

@@ -9,7 +9,7 @@ help()
     echo "      -h | --help        displays help page"
     echo "      -e | --essentials  specifies the folder for install files, default is reraid_essentials"
     echo "      -t | --type        the type of media Re:RAID will be installed on"
-    echo "                         supported types are: optical, flash, nodev"
+    echo "                         supported types are: devboot, flash, nodev, test-fullins"
     echo "                         nodev is for development purposes"
     echo "      -d | --device      specifies the device it will be installed on"
     echo "      -s | --stage       what stages should be processed"
@@ -96,11 +96,10 @@ case $STAGES_TO_PROCESS in
         exit 0
     ;;
     *)
-        ./setupscripts/prepare-device.sh || exit $?
         ./setupscripts/reraid-stage1.sh || exit $?
         ./setupscripts/reraid-stage2.sh || exit $?
         ./setupscripts/reraid-stage3.sh || exit $?
-        ./setupscripts/reraid-stage4-finish.sh || exit $?
+        ./setupscripts/reraid-stage4-install-to-device.sh || exit $?
         exit 0
     ;;
 esac
