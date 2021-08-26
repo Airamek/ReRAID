@@ -26,9 +26,9 @@ if [ ! -z $1 ]; then
 fi
 if [ ! -z $2 ]; then
     if beginswith / $2; then
-        OUTPUT_IMAGE="$2".cpio.gz
+        OUTPUT_IMAGE="$2".cpio.xz
     else
-        OUTPUT_IMAGE=$START_PWD/"$2".cpio.gz
+        OUTPUT_IMAGE=$START_PWD/"$2".cpio.xz
     fi
 fi
 
@@ -37,7 +37,7 @@ if [ -z "$INITRD_SOURCE" ]; then
     INITRD_SOURCE=$START_PWD/reraid
 fi
 if [ -z "$OUTPUT_IMAGE" ]; then
-    OUTPUT_IMAGE="$START_PWD"/reraid-test.cpio.gz
+    OUTPUT_IMAGE="$START_PWD"/reraid-test.cpio.xz
 fi
 
 echo "The initrd src dir is $INITRD_SOURCE"
@@ -55,6 +55,7 @@ if [ -f $OUTPUT_IMAGE ]; then
 fi 
 
 #This creates the initrd, which is actually an initramfs
-(cd $INITRD_SOURCE ; find . -print0 | sudo cpio --null --create --verbose --format=newc | gzip --best > $OUTPUT_IMAGE)
+#(cd $INITRD_SOURCE ; find . -print0 | sudo cpio --null --create --verbose --format=newc | gzip --best > $OUTPUT_IMAGE)
+(cd $INITRD_SOURCE ; find . -print0 | sudo cpio --null --create --verbose --format=newc | xz --format=lzma -v -z --fast -c -T0 > $OUTPUT_IMAGE)
 
-sudo cp $OUTPUT_IMAGE $START_PWD/tmp/fs/boot/
+sudo cp $OUTPUT_IMAGE $START_PWD/tmp/fs/

@@ -9,7 +9,6 @@ FILESYSTEM="$START_PWD/tmp/fs"
 
 if [ ! -d $FILESYSTEM ]; then
     mkdir -p $FILESYSTEM
-    mkdir $FILESYSTEM/boot
 fi
 
 
@@ -26,12 +25,6 @@ do
             shift
             shift
 		;;
-        *)
-            RERAID_DIR=$START_PWD/$1
-        ;;
-        /*)
-            RERAID_DIR=$1
-        ;;
 	esac
 done
 
@@ -92,4 +85,6 @@ sudo tee $RERAID_DIR/init<<EOF
 /bin/sh
 EOF
 
+# Prevent dmesg from writing to console
+echo "dmesg -n 1" >> $RERAID_DIR/etc/rc.local
 

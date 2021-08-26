@@ -60,21 +60,21 @@ echo "The kernel is $RERAID_KERNEL"
 
 # /etc/fstab creation
 case $DEVICE_TYPE in
-    ;;
-    flash)
+# ------------------------------------------------------------------ bounds for the case (because formatting)
+    flash | devboot)
     sudo tee $RERAID_DIR/etc/fstab <<EOF
 /dev/disk/by-label/RERAID    /boot       vfat defaults    0 0
 EOF
     ;;
+# ------------------------------------------------------------------
 esac
-
 
 # Store Re:RAID version
 touch $FILESYSTEM/reraid-release.txt
 echo $RERAID_VERSION > $FILESYSTEM/reraid-release.txt
 
 # The kernel
-sudo cp $RERAID_KERNEL $FILESYSTEM/boot/vmlinuz
+sudo cp $RERAID_KERNEL $FILESYSTEM/vmlinuz
 
 # Copy config dir
 cp -r $RERAID_ESSENTIALS_DIR/config $FILESYSTEM/

@@ -1,5 +1,7 @@
 reraid/*
 initrd-tree/*
 reraid-test.cpio.gz
+reraid-test.cpio.xz
 tmp/*
 reraid.iso
+reraid-live.img

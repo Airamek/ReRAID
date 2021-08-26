@@ -40,11 +40,11 @@ fi
 
 case $DEVICE_TYPE in
     flash)
-        mkdir $FILESYSTEM/boot/syslinux
-        cp $RERAID_ESSENTIALS_DIR/syslinux/libcom32.c32 $FILESYSTEM/boot/syslinux
-        cp $RERAID_ESSENTIALS_DIR/syslinux/libutil.c32 $FILESYSTEM/boot/syslinux
-        cp $RERAID_ESSENTIALS_DIR/syslinux/menu.c32 $FILESYSTEM/boot/syslinux
-        cp $RERAID_ESSENTIALS_DIR/syslinux/syslinux.cfg $FILESYSTEM/boot/syslinux
+        mkdir $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/libcom32.c32 $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/libutil.c32 $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/menu.c32 $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/syslinux.cfg $FILESYSTEM/syslinux
 
         if [ ! "$(ls /dev/disk/by-label | grep RERAID)" = "RERAID" ]; then
             echo "You need to give your device the LABEL \"RERAID\" to use it with this installer!"
@@ -55,38 +55,63 @@ case $DEVICE_TYPE in
         
         # Check if device is mounted, then unmount it
         INSTALL_DEVICE_MOUNT=$(lsblk -l -o MOUNTPOINT $INSTALL_DEVICE | tail -1)
-        sudo umount INSTALL_DEVICE_MOUNT
+        [ -z $INSTALL_DEVICE_MOUNT ] && sudo umount $INSTALL_DEVICE_MOUNT
+
+        # Set new mountpoint
+        INSTALL_DEVICE_MOUNT=/mnt/reraid
 
         # Install syslinux
-        sudo dd bs=440 count=1 conv=notrunc if=$RERAID_ESSENTIALS_DIR/syslinux/mbr.bin of=/dev/$(lsblk -no pkname $INSTALL_DEVICE)
-        sudo syslinux -d /boot/syslinux --install $INSTALL_DEVICE
+        #sudo dd bs=440 count=1 conv=notrunc if=$RERAID_ESSENTIALS_DIR/syslinux/mbr.bin of=/dev/$(lsblk -no pkname $INSTALL_DEVICE)
+        #sudo syslinux -d /syslinux --install $INSTALL_DEVICE
 
-        [ -d /mnt/reraid ] || sudo mkdir /mnt/reraid
+        [ -d $INSTALL_DEVICE_MOUNT ] || sudo mkdir $INSTALL_DEVICE_MOUNT
+        mountpoint $INSTALL_DEVICE_MOUNT && sudo umount $INSTALL_DEVICE_MOUNT
         sudo mount $INSTALL_DEVICE /mnt/reraid -o umask=000
         mountpoint $INSTALL_DEVICE_MOUNT || exit 1
         # Copy the files
         sudo cp -r $FILESYSTEM/* $INSTALL_DEVICE_MOUNT/
+        echo "Files copied successfully!"
         sudo umount $INSTALL_DEVICE
         sudo rm -r /mnt/reraid
     ;;
     devboot)
-        # Create 200mb reraid-live virtual hdd
+        mkdir $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/libcom32.c32 $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/libutil.c32 $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/menu.c32 $FILESYSTEM/syslinux
+        cp $RERAID_ESSENTIALS_DIR/syslinux/syslinux.cfg $FILESYSTEM/syslinux
+        # Create 512mb reraid-live virtual hdd
         if [ ! -f $START_PWD/reraid-live.img ]; then
-            dd if=/dev/zero bs=4k count=51200 of=$START_PWD/reraid-live.img
+            [ -d /mnt/reraid ] || sudo mkdir /mnt/reraid
+            dd if=/dev/zero bs=4k count=262144 of=$START_PWD/reraid-live.img
             parted -s $START_PWD/reraid-live.img mklabel msdos
             parted -s -a none $START_PWD/reraid-live.img mkpart primary fat32 0% 100%
             parted -s $START_PWD/reraid-live.img set 1 boot on
 
-            # Set up a loopdevice to be able to install syslinux 
+            # Set up a loopdevice to format partition
             sudo losetup -d /dev/loop0
             sudo losetup -P /dev/loop0 $START_PWD/reraid-live.img || exit 1
             sudo mkfs.vfat -a -F 32 -n RERAID /dev/loop0p1
-            # Install syslinux 
-            sudo dd bs=440 count=1 conv=notrunc if=$RERAID_ESSENTIALS_DIR/syslinux/mbr.bin of=/dev/loop0
-            #sudo syslinux -d /boot/syslinux --install /dev/loop0p1
-            sudo losetup -d /dev/loop0
+            NEED_TO_INSTALL_SYSLINUX=1
         fi
+
+        [ -d /mnt/reraid ] || sudo mkdir /mnt/reraid
+        sudo losetup -d /dev/loop0
+        sudo losetup -P /dev/loop0 $START_PWD/reraid-live.img || exit 1
+        sudo mount -t vfat /dev/loop0p1 /mnt/reraid || exit 1
         
+        #Copy the files
+        sudo cp -r $FILESYSTEM/* /mnt/reraid
+        echo "Files copied successfully!"
+        sudo umount /dev/loop0p1 || exit 1
+        sudo rm -r /mnt/reraid
+
+        # Install syslinux 
+        if [ $NEED_TO_INSTALL_SYSLINUX ]; then
+            sudo dd bs=440 count=1 conv=notrunc if=$RERAID_ESSENTIALS_DIR/syslinux/mbr.bin of=/dev/loop0
+            sudo syslinux -d /boot/syslinux --install /dev/loop0p1
+        fi
+        sudo losetup -d /dev/loop0
     ;;
     nodev)
 
